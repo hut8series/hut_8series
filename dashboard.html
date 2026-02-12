@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="styles.css">
+ <style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 40px 20px;
+  }
+
+  .dashboard-container {
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+    max-width: 1100px;
+    margin: auto;
+  }
+
+  h1 {
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f1f1f1;
+    padding-bottom: 8px;
+  }
+
+  .balance-section {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 25px;
+  }
+
+  .action-section {
+    margin-bottom: 30px;
+  }
+
+  .action-section button {
+    padding: 10px 18px;
+    margin-right: 15px;
+    background-color: #4a90e2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .action-section button:hover {
+    opacity: 0.9;
+  }
+
+  #purchased-link {
+    display: inline-block;
+    padding: 10px 18px;
+    margin: 20px 0 30px 0;
+    background-color: #ff9800;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+
+  #purchased-link:hover {
+    background-color: #e68900;
+  }
+
+  /* MACHINE GRID LAYOUT */
+  #ordinary-machines,
+  #vip-machines {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .machine-card {
+    border: 1px solid #eee;
+    padding: 18px;
+    border-radius: 10px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .machine-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  }
+
+  .machine-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+
+  .machine-card h3 {
+    margin: 10px 0 5px 0;
+  }
+
+  .machine-card p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+
+  .purchase-btn {
+    margin-top: 12px;
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .purchase-btn:hover {
+    background-color: #1e7e34;
+  }
+
+  /* MODALS */
+  #withdraw-modal,
+  #deposit-modal {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    display: none;
+  }
+
+  #withdraw-modal input,
+  #deposit-modal input {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+  }
+
+  #withdraw-modal button,
+  #deposit-modal button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #4a90e2;
+    color: white;
+    cursor: pointer;
+  }
+
+  #logout-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 40px;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  #logout-btn:hover {
+    background-color: #c82333;
+  }
+
+  #tx-list {
+    margin-top: 15px;
+    padding-left: 18px;
+  }
+</style>
+
+</head>
+<body>
+  <div class="dashboard-container">
+    <h1>Welcome, <span id="user-name">User</span></h1>
+    <p class="balance-section">Balance: UGX <span id="user-balance">0.00</span></p>
+
+    <div class="action-section">
+      <button id="deposit-btn">Deposit</button>
+      <button id="withdraw-btn">Withdraw</button>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div id="deposit-modal">
+      <p>To deposit money, follow these steps:</p>
+      <ol>
+        <li>Dial *165#</li>
+        <li>Select "Send Money"</li>
+        <li>Enter our number: 0746980555 (Joan Mercy)</li>
+        <li>Enter the amount</li>
+        <li>Enter your PIN</li>
+        <li>Confirm the transaction</li>
+        <li>Wait for confirmation SMS</li>
+      </ol>
+      <p>After sending, fill this info below for admin confirmation:</p>
+      <input type="text" id="deposit-username" placeholder="dashboard username">
+      <input type="text" id="deposit-number" placeholder="Number used to send">
+      <input type="text" id="deposit-name" placeholder="Registered Name of number">
+      <button id="submit-deposit">Submit Deposit Info</button>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdraw-modal">
+      <input type="text" id="withdraw-username" placeholder="dashboard username">
+      <input type="text" id="withdraw-number" placeholder="MTN/Airtel Number">
+      <input type="number" id="withdraw-amount" placeholder="Amount (UGX)">
+      <button id="confirm-withdraw">OK</button>
+    </div>
+
+    <a href="purchased-machines.html" id="purchased-link">View Purchased Machines</a>
+
+    <h2>Ordinary Machines</h2>
+    <div id="ordinary-machines"></div>
+
+    <h2>VIP Machines</h2>
+    <div id="vip-machines"></div>
+
+    <h2>Transaction History</h2>
+    <ul id="tx-list"></ul>
+
+    <button id="logout-btn">Logout</button>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script>
+  let currentUserId = null;
+  let currentBalance = 0;
+
+  auth.onAuthStateChanged(user => {
+    if (!user) return window.location.href="index.html";
+    currentUserId = user.uid;
+
+    db.ref("users/" + currentUserId).on("value", snapshot => {
+      const data = snapshot.val();
+      if (!data) return;
+      document.getElementById("user-name").innerText = data.name;
+      currentBalance = data.balance || 0;
+      document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
+    });
+
+    loadMachines("ordinary", document.getElementById("ordinary-machines"));
+    loadMachines("vip", document.getElementById("vip-machines"));
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    auth.signOut().then(()=> window.location.href="index.html");
+  });
+
+  // Deposit
+  const depositBtn = document.getElementById("deposit-btn");
+  const depositModal = document.getElementById("deposit-modal");
+  const submitDeposit = document.getElementById("submit-deposit");
+
+  depositBtn.addEventListener("click", ()=>depositModal.style.display="block");
+
+  submitDeposit.addEventListener("click", ()=>{
+    const username = document.getElementById("deposit-username").value.trim();
+    const number = document.getElementById("deposit-number").value.trim();
+    const name = document.getElementById("deposit-name").value.trim();
+    if (!username || !number || !name) return alert("Fill all fields");
+
+    db.ref("depositRequests").push({
+      uid: currentUserId,
+      username,
+      number,
+      name,
+      timestamp: Date.now(),
+      status: "pending"
+    });
+
+    alert("Deposit request submitted. Admin will confirm shortly.");
+    document.getElementById("deposit-username").value="";
+    document.getElementById("deposit-number").value="";
+    document.getElementById("deposit-name").value="";
+    depositModal.style.display="none";
+  });
+
+  // Withdraw
+  const withdrawBtn = document.getElementById("withdraw-btn");
+  const withdrawModal = document.getElementById("withdraw-modal");
+  const confirmWithdraw = document.getElementById("confirm-withdraw");
+
+  withdrawBtn.addEventListener("click", ()=>withdrawModal.style.display="block");
+
+  confirmWithdraw.addEventListener("click", ()=>{
+    const username = document.getElementById("withdraw-username").value.trim();
+    const number = document.getElementById("withdraw-number").value.trim();
+    const amount = Number(document.getElementById("withdraw-amount").value);
+
+    if(!username || !number || !amount || amount <=0) return alert("Fill all fields");
+    if(amount > currentBalance) return alert("Insufficient balance");
+
+    db.ref("withdrawRequests").push({
+      uid: currentUserId,
+      username,
+      number,
+      amount,
+      timestamp: Date.now(),
+      status: "pending"
+    });
+
+    alert("Withdraw request submitted.");
+    document.getElementById("withdraw-username").value="";
+    document.getElementById("withdraw-number").value="";
+    document.getElementById("withdraw-amount").value="";
+    withdrawModal.style.display="none";
+  });
+
+  // Load Machines (UPDATED TO SHOW PROFIT)
+  function loadMachines(type, container){
+    db.ref("machines/" + type).once("value").then(snapshot=>{
+      container.innerHTML="";
+      if(!snapshot.exists()) return;
+
+      snapshot.forEach(machineSnap=>{
+        const m = machineSnap.val();
+
+        const card = document.createElement("div");
+        card.className="machine-card";
+
+        card.innerHTML=`
+          <img src="${m.image}" alt="${m.name}">
+          <h3>${m.name}</h3>
+          <p>${m.description}</p>
+          <p><strong>Price:</strong> UGX ${Number(m.price).toLocaleString()}</p>
+          <p><strong>Profit:</strong> UGX ${Number(m.profit || 0).toLocaleString()}</p>
+          <p><strong>Duration:</strong> ${m.duration || 0} </p>
+          <button class="purchase-btn">Purchase</button>
+        `;
+
+        card.querySelector(".purchase-btn")
+            .addEventListener("click", ()=>purchaseMachine(type,machineSnap.key,m.price));
+
+        container.appendChild(card);
+      });
+    });
+  }
+
+  function purchaseMachine(type,machineId,price){
+    db.ref(`machines/${type}/${machineId}`).once("value").then(machineSnap=>{
+      const mData = machineSnap.val();
+
+      db.ref(`users/${currentUserId}`).once("value").then(snapshot=>{
+        const balance = snapshot.val().balance || 0;
+        if(balance < price) return alert("Insufficient balance");
+
+        db.ref(`users/${currentUserId}`).update({ balance: balance - price });
+
+        db.ref(`users/${currentUserId}/machines/${type}/${machineId}`).set({
+          name: mData.name,
+          description: mData.description,
+          image: mData.image,
+          price: mData.price,
+          profit: mData.profit,
+          duration: mData.duration,
+          purchasedAt: Date.now()
+        });
+
+        document.getElementById("user-balance").innerText=(balance-price).toLocaleString();
+        alert("Machine purchased successfully");
+      });
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - Hut 8</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .register-container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    .register-container h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    .register-container input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .register-container button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4a90e2;
+      color: #fff;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .register-container button:hover {
+      background-color: #357ABD;
+    }
+
+    .register-container p {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .register-container a {
+      color: #4a90e2;
+      text-decoration: none;
+    }
+
+    .register-container a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h1>Register</h1>
+    <input type="text" id="name" placeholder="Full Name">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="register-btn">Register</button>
+    <p>Already have an account? <a href="index.html" id="go-to-login">Log in</a></p>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script>
+    const registerBtn = document.getElementById('register-btn');
+
+    registerBtn.addEventListener('click', () => {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if(!name || !email || !password) return alert("Fill all fields");
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(cred => {
+          const uid = cred.user.uid;
+          // Add user to database
+          db.ref('users/' + uid).set({
+            name: name,
+            email: email,
+            balance: 0,
+            role: "user"
+          }).then(() => {
+            alert("Registration successful! Redirecting to login...");
+            window.location.href = "index.html";
+          });
+        })
+        .catch(err => alert(err.message));
+    });
+  </script>
+</body>
+</html>

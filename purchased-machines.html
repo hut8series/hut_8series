@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Purchased Machines</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Your Purchased Machines</h1>
+  <div id="purchased-container"></div>
+  <button id="back-btn">Back to Dashboard</button>
+
+  <script src="firebase-config.js"></script>
+  <script>
+    const purchasedContainer = document.getElementById("purchased-container");
+    const backBtn = document.getElementById("back-btn");
+
+    // Back button
+    backBtn.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    // Auth check
+    auth.onAuthStateChanged(user => {
+      if (!user) return window.location.href = "index.html";
+
+      const uid = user.uid;
+
+      // Load purchased machines
+      db.ref(`users/${uid}/machines`).on("value", snapshot => {
+        purchasedContainer.innerHTML = "";
+
+        if (!snapshot.exists()) {
+          purchasedContainer.innerHTML = "<p>No purchased machines yet.</p>";
+          return;
+        }
+
+        // Loop through types: ordinary, vip
+        snapshot.forEach(typeSnap => {
+          const type = typeSnap.key; // ordinary / vip
+
+          typeSnap.forEach(machineSnap => {
+            const mId = machineSnap.key;
+            const mData = machineSnap.val();
+
+            // Calculate days passed
+            const purchasedAt = mData.purchasedAt;
+            const duration = mData.duration || 0; // total days
+            const now = Date.now();
+            const daysPassed = Math.floor((now - purchasedAt) / (1000*60*60*24)) + 1; // day 1 starts at purchase
+
+            const card = document.createElement("div");
+            card.className = "machine-card";
+
+            card.innerHTML = `
+              <h3>${mData.name}</h3>
+              <p><strong>Type:</strong> ${type}</p>
+              <p><strong>Duration:</strong> ${daysPassed}/${duration} days</p>
+              <p><strong>Profit:</strong> ${mData.profit}</p>
+            `;
+
+            purchasedContainer.appendChild(card);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

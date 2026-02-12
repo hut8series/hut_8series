@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background:#f0f2f5;
+      font-family: Arial, sans-serif;
+      display:flex;
+      justify-content:center;
+      padding:40px 0;
+    }
+
+    .admin-container {
+      background:#fff;
+      padding:30px;
+      width:700px;
+      border-radius:8px;
+      box-shadow:0 4px 15px rgba(0,0,0,.1);
+    }
+
+    h2 { margin-top:30px; }
+
+    input, select {
+      width:100%;
+      padding:8px;
+      margin:6px 0;
+    }
+
+    button {
+      padding:8px 14px;
+      background:#4a90e2;
+      color:#fff;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+    }
+
+    ul {
+      list-style:none;
+      padding:0;
+    }
+
+    li {
+      border:1px solid #ddd;
+      padding:10px;
+      margin-bottom:8px;
+      border-radius:5px;
+    }
+
+    .logout {
+      margin-top:30px;
+      background:#dc3545;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-container">
+  <h1>Admin Dashboard</h1>
+
+  <!-- ADD MACHINE -->
+  <h2>Add Machine</h2>
+  <select id="machine-type">
+    <option value="ordinary">Ordinary</option>
+    <option value="vip">VIP</option>
+  </select>
+  <!-- STATIC: NEVER TOUCHED BY JS -->
+<div id="add-machine-section">
+  <input id="machine-name" placeholder="machine name">
+   <input id="machine-image" placeholder="Image URL">
+  <input id="machine-desc" placeholder="machine description">
+  <input id="machine-price" placeholder="machine-price">
+  <input id="machine-profit" placeholder="machine-profit">
+  <input id="machine-duration" placeholder="machine-duration">
+  <button id="add-machine">Add Machine</button>
+</div>
+
+<!-- DYNAMIC: JS CLEARS THESE -->
+<ul id="users-list"></ul>
+<ul id="withdraw-list"></ul>
+
+  <button id="add-machine">Add Machine</button>
+
+  <!-- USERS -->
+  <h2>Users</h2>
+  <ul id="users-list"></ul>
+  
+  <h2>Withdraw Requests</h2>
+<ul id="withdraw-list"></ul>
+
+<h2>Deposit Requests</h2>
+<ul id="deposit-requests-list"></ul>
+
+  <button id="logout-btn" class="logout">Logout</button>
+</div>
+<script>
+  // ===================== LOGOUT =====================
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      auth.signOut()
+        .then(() => window.location.href = "index.html")
+        .catch(err => alert("Logout failed: " + err.message));
+    });
+    
+</script>
+<script src="firebase-config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
+  

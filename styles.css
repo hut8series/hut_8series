@@ -1,0 +1,133 @@
+/* ===============================
+   GLOBAL RESET & BODY
+================================ */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    min-height: 100vh;      /* allow page to grow */
+    overflow-y: auto;      /* enable scrolling */
+}
+
+/* ===============================
+   AUTH (LOGIN & REGISTER ONLY)
+================================ */
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ===============================
+   LOGIN & REGISTER CONTAINERS
+================================ */
+.login-container,
+.register-container {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    width: 300px;
+}
+
+/* ===============================
+   HEADINGS
+================================ */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ===============================
+   FORM ELEMENTS
+================================ */
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+/* ===============================
+   ERRORS
+================================ */
+.error {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* ===============================
+   MACHINE CARDS
+================================ */
+.machine-card {
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background: #fff;
+}
+
+/* ===============================
+   BADGES
+================================ */
+.badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge.success {
+    background: #d4edda;
+    color: #155724;
+}
+#purchased-link {
+  display: inline-block;
+  padding: 10px 15px;
+  margin: 15px 0;
+  background-color: #ff9800;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+#purchased-link:hover {
+  background-color: #e68900;
+  text-decoration: none;
+  color: #fff;
+}
